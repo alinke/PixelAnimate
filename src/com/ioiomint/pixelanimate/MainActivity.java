@@ -101,7 +101,7 @@ import android.hardware.SensorManager;
 public class MainActivity extends IOIOActivity implements OnItemClickListener  {
 
 	private GifView gifView;
-	
+	private static ioio.lib.api.RgbLedMatrix matrix_;
 	private static ioio.lib.api.RgbLedMatrix.Matrix KIND;  //have to do it this way because there is a matrix library conflict
 	private static android.graphics.Matrix matrix2;
     private static final String TAG = "PixelTouch";	  	
@@ -117,7 +117,7 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
   	private static float scaleWidth; 
   	private static float scaleHeight; 	  	
   	private static Bitmap resizedBitmap;  	
-  	private int deviceFound = 0;
+  	private static int deviceFound = 0;
   	
   	private SharedPreferences prefs;
 	private String OKText;
@@ -125,10 +125,12 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
 	private String app_ver;	
 	private int matrix_model;
 	private final String tag = "";	
+	private final String LOG_TAG = "PixelAnimate";
 	private String imagePath;
 	private static int resizedFlag = 0;
 	
 	private ConnectTimer connectTimer; 	
+    private MatrixDrawTimer matrixdrawtimer; 
 	private Canvas canvas;
 	private static Canvas canvasIOIO;
 	
@@ -140,7 +142,7 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
     private GridView sdcardImages;
 	
 	///********** Timers
-    private MediaScanTimer mediascanTimer; 
+    private MediaScanTimer mediascanTimer; 	
 	private boolean noSleep = false;	
 	private int countdownCounter;
 	private static final int countdownDuration = 30;
@@ -154,6 +156,10 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
 	private TextView firstTimeSetup2_;
 	private TextView firstTimeInstructions_;
 	private TextView firstTimeSetupCounter_;
+	private boolean debug_;
+	private static int appAlreadyStarted = 0;
+	private int FPSOverride_ = 0;
+	private static int fps = 0;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -200,6 +206,13 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
         connectTimer = new ConnectTimer(30000,5000); //pop up a message if it's not connected by this timer
  		connectTimer.start(); //this timer will pop up a message box if the device is not found
  		
+ 		if (fps == 0) {  //then we're not going to use it
+ 			matrixdrawtimer = new MatrixDrawTimer(30000,41); 
+ 		}
+ 		else {
+ 			matrixdrawtimer = new MatrixDrawTimer(30000,1000/fps); 
+ 		} 		
+ 		
  		context = getApplicationContext();
         
         if (android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED)) {
@@ -207,7 +220,7 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
             extStorageDirectory = Environment.getExternalStorageDirectory().toString();
 	           
             	// File artdir = new File(basepath + "/Android/data/com.ioiomint./files");
-            	File artdir = new File(basepath + "/pixelanimate");
+            	File artdir = new File(basepath + "/pixel/pixelanimate");
 	            if (!artdir.exists()) { //no directory so let's now start the one time setup
 	            	sdcardImages.setVisibility(View.INVISIBLE); //hide the images as they're not loaded so we can show a splash screen instead
 	            	//showToast(getResources().getString(R.string.oneTimeSetupString)); //replaced by direct text on view screen
@@ -222,9 +235,15 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
 	            	continueOnCreate();
 	            }
 
-        } else if (android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED_READ_ONLY)) {
+      //  } else if (android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED_READ_ONLY)) {
 
-            showToast("Sorry, your device does not have an accessible SD card, this app will not work");//Or use your own method ie: Toast
+           // showToast("Sorry, your device does not have an accessible SD card, this app will not work");//Or use your own method ie: Toast
+      //  }
+	            
+        } else  {
+        	AlertDialog.Builder alert=new AlertDialog.Builder(this);
+ 	      	alert.setTitle("No SD Card").setIcon(R.drawable.icon).setMessage("Sorry, your device does not have an accessible SD card, this app needs to copy some images to your SD card and will not work without it.\n\nPlease exit this app and go to Android settings and check that your SD card is mounted and available and then restart this app.\n\nNote for devices that don't have external SD cards, this app will utilize the internal SD card memory but you are most likely seeing this message because your device does have an external SD card slot.").setNeutralButton("OK", null).show();
+            //showToast("Sorry, your device does not have an accessible SD card, this app will not work");//Or use your own method ie: Toast
         }
 	 
         
@@ -263,7 +282,7 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
 	            OutputStream out = null;
 	            try {
 	              in = assetManager.open("pixelanimate/" + files[i]);
-	              out = new FileOutputStream(basepath + "/pixelanimate/" + files[i]);
+	              out = new FileOutputStream(basepath + "/pixel/pixelanimate/" + files[i]);
 	              copyFile(in, out);
 	              in.close();
 	              in = null;
@@ -273,7 +292,7 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
 	            
 	             
 	           MediaScannerConnection.scanFile(context,  //here is where we register the newly copied file to the android media content DB via forcing a media scan
-		                        new String[] { basepath + "/pixelanimate/" + files[i] }, null,
+		                        new String[] { basepath + "/pixel/pixelanimate/" + files[i] }, null,
 		                        new MediaScannerConnection.OnScanCompletedListener() {
 		                    public void onScanCompleted(String path, Uri uri) {
 		                        Log.i("ExternalStorage", "Scanned " + path + ":");
@@ -336,6 +355,8 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
         }
         
         connectTimer.cancel();  //if user closes the program, need to kill this timer or we'll get a crash
+        matrixdrawtimer.cancel();
+     //   ioio_.disconnect();
       //  imagedisplaydurationTimer.cancel();
  		//pausebetweenimagesdurationTimer.cancel();
  		
@@ -643,7 +664,7 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
 	    	if (item.getItemId() == R.id.menu_prefs)
 	       {
 	    		
-	    		    		
+	    		appAlreadyStarted = 0;    		
 	    		Intent intent = new Intent()
 	       				.setClass(this,
 	       						com.ioiomint.pixelanimate.preferences.class);   
@@ -689,6 +710,7 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
 	     //scanAllPics = prefs.getBoolean("pref_scanAll", false);
 	     //slideShowMode = prefs.getBoolean("pref_slideshowMode", false);
 	     noSleep = prefs.getBoolean("pref_noSleep", false);
+	     debug_ = prefs.getBoolean("pref_debugMode", false);
 	  //   dimDuringSlideShow = prefs.getBoolean("pref_dimDuringSlideShow", true);
 	     
 	    // imageDisplayDuration = Integer.valueOf(prefs.getString(   
@@ -703,6 +725,32 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
 	    	        resources.getString(R.string.selected_matrix),
 	    	        resources.getString(R.string.matrix_default_value))); 
 	     
+	     FPSOverride_ = Integer.valueOf(prefs.getString(   //the selected RGB LED Matrix Type
+	    	        resources.getString(R.string.fps_override),
+	    	        resources.getString(R.string.FPSOverrideDefault))); 
+	     
+	     switch (FPSOverride_) {  //get this from the preferences
+	     case 0:
+	    	 fps = 0;
+	    	 break;
+	     case 1:
+	    	 fps = 5;
+	    	 break;
+	     case 2:
+	    	 fps = 10;
+	    	 break;
+	     case 3:
+	    	 fps = 15;
+	    	 break;
+	     case 4:
+	    	 fps = 24;
+	    	 break;
+	     case 5:
+	    	 fps = 30;
+	    	 break;
+	     default:	    		 
+	    	 fps = 0;
+	     }
 	     
 	     switch (matrix_model) {  //get this from the preferences
 	     case 0:
@@ -714,15 +762,15 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
 	    	 BitmapInputStream = getResources().openRawResource(R.raw.selectpic);
 	    	 break;
 	     case 2:
-	    	 KIND = ioio.lib.api.RgbLedMatrix.Matrix.SEEEDSTUDIO_32x32; //v1
+	    	 KIND = ioio.lib.api.RgbLedMatrix.Matrix.SEEEDSTUDIO_32x32_NEW; //v1
 	    	 BitmapInputStream = getResources().openRawResource(R.raw.selectpic32);
 	    	 break;
 	     case 3:
-	    	 KIND = ioio.lib.api.RgbLedMatrix.Matrix.SEEEDSTUDIO_32x32_NEW; //v2
+	    	 KIND = ioio.lib.api.RgbLedMatrix.Matrix.SEEEDSTUDIO_32x32; //v2
 	    	 BitmapInputStream = getResources().openRawResource(R.raw.selectpic32);
 	    	 break;
 	     default:	    		 
-	    	 KIND = ioio.lib.api.RgbLedMatrix.Matrix.SEEEDSTUDIO_32x32_NEW; //v2 as the default
+	    	 KIND = ioio.lib.api.RgbLedMatrix.Matrix.SEEEDSTUDIO_32x32; //v2 as the default
 	    	 BitmapInputStream = getResources().openRawResource(R.raw.selectpic32);
 	     }
 	         
@@ -735,21 +783,54 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
 	
     
     class IOIOThread extends BaseIOIOLooper {
-  		private ioio.lib.api.RgbLedMatrix matrix_;
+  		//private ioio.lib.api.RgbLedMatrix matrix_;
 
   		@Override
   		protected void setup() throws ConnectionLostException {
   			matrix_ = ioio_.openRgbLedMatrix(KIND);
   			deviceFound = 1; //if we went here, then we are connected over bluetooth or USB
   			connectTimer.cancel(); //we can stop this since it was found
+  			
+  			if (debug_ == true) {  			
+	  			showToast("Bluetooth Connected");
+  			}
+  			
+  			if (fps != 0) {  //then we're doing the FPS override which the user selected from settings
+  				matrixdrawtimer.start(); 
+  			}
+  			else {
+  				matrix_.frame(frame_); //write select pic to the frame since we didn't start the timer
+  			}
+  			
+  			appAlreadyStarted = 1;
+  			
   		}
 
-  		@Override
-  		public void loop() throws ConnectionLostException {
+  		//@Override
+  		//public void loop() throws ConnectionLostException {
   		
-  			matrix_.frame(frame_); //writes whatever is in bitmap raw 565 file buffer to the RGB LCD
+  		//	matrix_.frame(frame_); //doesn't work as well on older hardware if we keep in this loop
   					
-  			}	
+  			//}	
+  		
+  		@Override
+		public void disconnected() {   			
+  			Log.i(LOG_TAG, "IOIO disconnected");
+			if (debug_ == true) {  			
+	  			showToast("Bluetooth Disconnected");
+  			}			
+		}
+
+		@Override
+		public void incompatible() {  //if the wrong firmware is there
+			//AlertDialog.Builder alert=new AlertDialog.Builder(context); //causing a crash
+			//alert.setTitle(getResources().getString(R.string.notFoundString)).setIcon(R.drawable.icon).setMessage(getResources().getString(R.string.bluetoothPairingString)).setNeutralButton(getResources().getString(R.string.OKText), null).show();	
+			showToast("Incompatbile firmware!");
+			showToast("This app won't work until you flash the IOIO with the correct firmware!");
+			showToast("You can use the IOIO Manager Android app to flash the correct firmware");
+			Log.e(LOG_TAG, "Incompatbile firmware!");
+		}
+  		
   		}
 
   	@Override
@@ -808,6 +889,37 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
    		}
    	}
     
+	 public class MatrixDrawTimer extends CountDownTimer
+	   	{
+
+	   		public MatrixDrawTimer(long startTime, long interval)
+	   			{
+	   				super(startTime, interval);
+	   			}
+
+	   		@Override
+	   		public void onFinish()
+	   			{
+	   			matrixdrawtimer.start(); //re-start the timer to keep is going
+	   				
+	   			}
+
+	   		@Override
+	   		public void onTick(long millisUntilFinished)	{
+	   			
+		   		
+			   	try {
+					matrix_.frame(frame_);
+				} catch (ConnectionLostException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+					
+		   			
+	   		}
+	   		
+	   	}
+    
     public class MediaScanTimer extends CountDownTimer
    	{
 
@@ -836,7 +948,7 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
     private void showNotFound() {	
 		AlertDialog.Builder alert=new AlertDialog.Builder(this);
 		alert.setTitle(getResources().getString(R.string.notFoundString)).setIcon(R.drawable.icon).setMessage(getResources().getString(R.string.bluetoothPairingString)).setNeutralButton(getResources().getString(R.string.OKText), null).show();	
-}
+    }
 
 	
 	public static class GifView extends View {
@@ -1046,6 +1158,15 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
 								 	    canvas.drawBitmap(IOIOBitmap, 0, 0, null); //write the animated .gif to the screen
 						   		 } 
 						   		loadImage(); 
+						   	    
+							   		if (appAlreadyStarted == 1 && fps == 0) {  //this has to be here or we'll get a crash, fps = 0 means no FPS override
+								   		try {
+											matrix_.frame(frame_);
+										} catch (ConnectionLostException e) {
+											 //TODO Auto-generated catch block
+											e.printStackTrace();
+										}
+							   		}
 						}
 						
 						invalidate();

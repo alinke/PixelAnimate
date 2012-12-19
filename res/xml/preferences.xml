@@ -34,6 +34,16 @@
     android:key="pref_taxi"
     android:summary="Call Taxi when Tipsy or Drunk"/> -->
    
+     <ListPreference
+    android:key="@string/fps_override"
+    android:title="@string/FPSOverrideTitle"
+    android:summary="@string/FPSOverrideSummary"
+    android:entries="@array/FPSOverride_options"
+    android:entryValues="@array/FPSOverride_values"
+    android:dialogTitle="@string/dialogTitleFPSOverride"
+    android:defaultValue="@string/FPSOverrideDefault" />
+    
+        
     <ListPreference
     android:key="@string/selected_matrix"
     android:title="@string/matrix"
@@ -43,7 +53,13 @@
     android:dialogTitle="@string/dialogTitleMatrix"
     android:defaultValue="@string/matrix_default_value" />
   
-  
+    
+    
+    <CheckBoxPreference
+    android:title="@string/debugMode"
+    android:key="pref_debugMode"
+    android:defaultValue="@string/pref_debugModeDefault"
+    android:summary="@string/debugModeSummary"/>  
   
   
     
