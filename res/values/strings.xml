@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">Pixel Animate</string>
+  <string name="app_name">PIXEL Animate</string>
 
   
     <string name="menu_about_title">About</string> 
-    <string name="menu_about_summary">More info at http://droidalyzer.com/ioiomatrix.html\n\nDesigned by Open Gadgets LLC</string>
+    <string name="menu_about_summary">http://ledpixelart.html\n\nDesigned by Open Gadgets LLC</string>
     <string name="versionString">Version</string> 
     
    <string name="oneTimeSetupString">One Time Setup: Copying stock animations to your SD card.</string> 
@@ -16,28 +16,28 @@
    <string name="setupInstructionsStringTitle">Instructions</string>   
      
      
-    <string name="prefTitle">Pixel Animate Settings</string>
+    <string name="prefTitle">PIXEL Animate Settings</string>
     <string name="menu_prefs_title">Settings</string>
-    <string name="prefSummary">Pixel Animate Settings</string>
+    <string name="prefSummary">PIXEL Animate Settings</string>
     
     <string name="scanAll">Show All Album Pics</string>
     <string name="pref_scanAll_default">false</string>
     <string name="scanAllSummary">Only animations in the pixel/pixelanimate directory of your SD card will be displayed. Checking this box displays all SD card pictures.</string>
   
     <string name="OKText">OK</string>   
-    <string name="notFoundString">Pixel LED Frame Not Found</string>   
+    <string name="notFoundString">PIXEL Not Found</string>   
    
     <string name="selected_matrix">selected_matrix</string>
-    <string name="matrix">LED Matrix Selection</string>
-    <string name="matrixSummary">Select your RGB LED Matrix model</string>    
-    <string name="dialogTitleMatrix">LED Matrix Selection</string>
+    <string name="matrix">LED Panel Selection</string>
+    <string name="matrixSummary">Select your LED Panel model</string>    
+    <string name="dialogTitleMatrix">LED Panel Selection</string>
     <string name="matrix_default_value">3</string>   
     
     <string name="fps_override">fps_override</string>
-    <string name="FPSOverrideTitle">FPS Override</string>
+    <string name="FPSOverrideTitle">Frames per Second</string>
     <string name="FPSOverrideSummary">Normally you won\'t need to change this, only if you want to override the frames per second of the animations. Restart app after changing.</string>    
-    <string name="dialogTitleFPSOverride">FPS Override</string>
-    <string name="FPSOverrideDefault">0</string>  
+    <string name="dialogTitleFPSOverride">Frames per Second</string>
+    <string name="FPSOverrideDefault">4</string>  
     
     <string name="bluetooth_pair">Blueooth Pairing</string>
     <string name="bluetooth_pairSummary">Shortcut to the Bluetooth settings screen. Pair to IOIO using code: 4545</string>
@@ -54,7 +54,7 @@
     <string name="noSleepSummary">Forces the app to be always on, your device will not go into power savings mode while this app is running. Good if using as a Kiosk for example. </string>
     
     <string name="menu_rescan_title">Rescan</string>
-    <string name="rescan_screen_verbage">Now scanning your SD card or internal memory for new animations or deletions to the pixelanimation folder, just a moment&#8230;</string>
+    <string name="rescan_screen_verbage">Now scanning your SD card or internal memory for new animations or deletions, just a moment&#8230;</string>
     
     <string name="startup_verbage_1">One Time Setup</string>
     <string name="startup_verbage_2">Copying stock animations to your SD card or internal memory&#8230;</string>

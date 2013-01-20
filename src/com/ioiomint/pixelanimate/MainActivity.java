@@ -800,16 +800,16 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
   			}
   			else {
   				matrix_.frame(frame_); //write select pic to the frame since we didn't start the timer
-  			}
+  			}//
   			
   			appAlreadyStarted = 1;
   			
   		}
 
-  		//@Override
+  	//	@Override
   		//public void loop() throws ConnectionLostException {
   		
-  		//	matrix_.frame(frame_); //doesn't work as well on older hardware if we keep in this loop
+  			//matrix_.frame(frame_); //doesn't work as well on older hardware if we keep in this loop
   					
   			//}	
   		
