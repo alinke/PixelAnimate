@@ -105,7 +105,7 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
 	private static ioio.lib.api.RgbLedMatrix.Matrix KIND;  //have to do it this way because there is a matrix library conflict
 	private static android.graphics.Matrix matrix2;
     private static final String TAG = "PixelTouch";	  	
-  	private static short[] frame_ = new short[512];
+  	private static short[] frame_;
   	public static final Bitmap.Config FAST_BITMAP_CONFIG = Bitmap.Config.RGB_565;
   	private static byte[] BitmapBytes;
   	private static InputStream BitmapInputStream;
