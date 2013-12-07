@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.ioiomint.pixelanimate"
-      android:versionCode="15"
-      android:versionName="2.3">
+      android:versionCode="17"
+      android:versionName="3.1">
+      
+     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="10"/>
+     
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"></uses-permission> 
@@ -58,6 +61,5 @@
         </activity> -->
 
     </application>
-    <uses-sdk android:minSdkVersion="3"/>
 
 </manifest> 
