@@ -27,7 +27,7 @@
         android:gravity="center|center_vertical|left"
         android:text="@string/startup_verbage_1"
         android:textColor="#DB2645"
-        android:textSize="30sp" />
+        android:textSize="26sp" />
       
       <TextView
         android:id="@+id/firstTimeSetup2"
@@ -54,13 +54,13 @@
         android:gravity="center|center_vertical|left"
         android:text="***"
         android:textColor="#26DBBC"
-        android:textSize="30sp" />
+        android:textSize="26sp" />
 
    <GridView  
         android:id="@+id/sdcard"
         android:layout_width="fill_parent" 
         android:layout_height="fill_parent"
-        android:background="#FFFFFF"    
+        android:background="#565051"    
         android:verticalSpacing="10dp"
         android:horizontalSpacing="10dp" 
         android:stretchMode="columnWidth"

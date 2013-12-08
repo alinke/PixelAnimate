@@ -12,7 +12,7 @@
     
    
    <string name="menu_instructions_title">Instructions</string>
-   <string name="setupInstructionsString">First pair your Android device to the Pixel LED frame which will show up as \'IOIO\' in Bluetooth using code 4545.\n\nTap an animation to display it on the Pixel LED frame.\n\nFollow the instructions below to add your own animations which are in animated gif format to this app:\n\nConnect your Android device to your computer with a USB cable.\n\nFrom your computer, open your Android device and copy your animated gifs to the pixel/pixelanimate folder of your SD card or internal storage if your device does not have a removeable SD card.\n\nAfter done copying, select Rescan from this app\'s menu\n\nYou can also delete the sample animated gifs leaving only your own.\n\nYou\&apos;ll get the best results by pre-scaling your animated gifs to 32x32 resolution and using a solid black background.\n\nAnimated gifs not in 32x32 resolution will be scaled automatically to 32x32. Animated gifs higher than 500x500 resolution may cause this app to crash and therefore it is recommended to use animated gifs of 300x300 resolution or lower.</string>
+   <string name="setupInstructionsString">First pair your Android device to the Pixel LED frame which will show up as \'PIXEL\' in Bluetooth using code 4545.\n\nTap an animation to display it on the Pixel LED frame.\n\nFollow the instructions below to add your own animations which are in animated gif format to this app:\n\nConnect your Android device to your computer with a USB cable.\n\nFrom your computer, open your Android device and copy your animated gifs to the pixel/pixelanimate folder of your SD card or internal storage if your device does not have a removeable SD card.\n\nAfter done copying, select Rescan from this app\'s menu\n\nYou can also delete the sample animated gifs leaving only your own.\n\nYou\&apos;ll get the best results by pre-scaling your animated gifs to 32x32 resolution and using a solid black background.\n\nAnimated gifs not in 32x32 resolution will be scaled automatically to 32x32. Animated gifs higher than 500x500 resolution may cause this app to crash and therefore it is recommended to use animated gifs of 300x300 resolution or lower.</string>
    <string name="setupInstructionsStringTitle">Instructions</string>   
      
      
@@ -40,7 +40,7 @@
     <string name="FPSOverrideDefault">4</string>  
     
     <string name="bluetooth_pair">Blueooth Pairing</string>
-    <string name="bluetooth_pairSummary">Shortcut to the Bluetooth settings screen. Pair to IOIO using code: 4545</string>
+    <string name="bluetooth_pairSummary">Shortcut to the Bluetooth settings screen. Pair to PIXEL using code: 4545</string>
     
     <string name="slideShowtitle">Slide Show Settings</string>
     <string name="slideShowtitleSummary">Slide Show Settings</string>
@@ -54,11 +54,11 @@
     <string name="noSleepSummary">Forces the app to be always on, your device will not go into power savings mode while this app is running. Good if using as a Kiosk for example. </string>
     
     <string name="menu_rescan_title">Rescan</string>
-    <string name="rescan_screen_verbage">Now scanning your SD card or internal memory for new animations or deletions, just a moment&#8230;</string>
+    <string name="rescan_screen_verbage">Now scanning your local storage for new animations, just a moment&#8230;</string>
     
     <string name="startup_verbage_1">One Time Setup</string>
-    <string name="startup_verbage_2">Copying stock animations to your SD card or internal memory&#8230;</string>
-    <string name="firstTime_instructions">After this completes, select Instructions from the menu to use your own animations</string>
+    <string name="startup_verbage_2">Copying animations to local storage&#8230;</string>
+    <string name="firstTime_instructions"></string>
   
     <string name="loadingImagesPlsWaitTitle">Please Wait</string>
     <string name="loadingImagesPlsWait">Loading animations, just a moment&#8230;</string>

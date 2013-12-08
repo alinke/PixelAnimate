@@ -40,6 +40,7 @@ import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
@@ -64,6 +65,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
@@ -104,7 +106,7 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
 	private static ioio.lib.api.RgbLedMatrix matrix_;
 	private static ioio.lib.api.RgbLedMatrix.Matrix KIND;  //have to do it this way because there is a matrix library conflict
 	private static android.graphics.Matrix matrix2;
-    private static final String TAG = "PixelTouch";	  	
+    private static final String TAG = "PixelAnimate";	  	
   	private static short[] frame_;
   	public static final Bitmap.Config FAST_BITMAP_CONFIG = Bitmap.Config.RGB_565;
   	private static byte[] BitmapBytes;
@@ -145,7 +147,7 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
     private MediaScanTimer mediascanTimer; 	
 	private boolean noSleep = false;	
 	private int countdownCounter;
-	private static final int countdownDuration = 30;
+	private static final int countdownDuration = 20;
 	private Display display;
 	private ImageAdapter imageAdapter;
 	private Cursor cursor;
@@ -218,17 +220,20 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
         if (android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED)) {
 
             extStorageDirectory = Environment.getExternalStorageDirectory().toString();
-	           
+            	
             	// File artdir = new File(basepath + "/Android/data/com.ioiomint./files");
             	File artdir = new File(basepath + "/pixel/pixelanimate");
 	            if (!artdir.exists()) { //no directory so let's now start the one time setup
 	            	sdcardImages.setVisibility(View.INVISIBLE); //hide the images as they're not loaded so we can show a splash screen instead
+	            	
+	            	new copyFilesAsync().execute();
+	            	
 	            	//showToast(getResources().getString(R.string.oneTimeSetupString)); //replaced by direct text on view screen
-	            	artdir.mkdirs();
-	                copyArt(); 
-	                countdownCounter = (countdownDuration - 2);
-	                mediascanTimer = new MediaScanTimer(countdownDuration*1000,1000); //pop up a message if it's not connected by this timer
- 		            mediascanTimer.start(); //we need a delay here to give the me
+	            	//artdir.mkdirs();
+	               // copyArt(); 
+	                //countdownCounter = (countdownDuration - 2);
+	               // mediascanTimer = new MediaScanTimer(countdownDuration*1000,1000); //pop up a message if it's not connected by this timer
+ 		           // mediascanTimer.start(); //we need a delay here to give the me
 	               
 	            }
 	            else { //the directory was already there so no need to copy files or do a media re-scan so just continue on
@@ -245,9 +250,373 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
  	      	alert.setTitle("No SD Card").setIcon(R.drawable.icon).setMessage("Sorry, your device does not have an accessible SD card, this app needs to copy some images to your SD card and will not work without it.\n\nPlease exit this app and go to Android settings and check that your SD card is mounted and available and then restart this app.\n\nNote for devices that don't have external SD cards, this app will utilize the internal SD card memory but you are most likely seeing this message because your device does have an external SD card slot.").setNeutralButton("OK", null).show();
             //showToast("Sorry, your device does not have an accessible SD card, this app will not work");//Or use your own method ie: Toast
         }
-	 
-        
 	}
+	
+ 
+	 private class copyFilesAsync extends AsyncTask<Void, Integer, Void>{
+		 
+	     int progress_status;
+	      
+	     @Override
+	  protected void onPreExecute() {
+	   // update the UI immediately after the task is executed
+	   super.onPreExecute();
+	    
+	 //   Toast.makeText(AsyncTaskActivity.this,
+	            //"Invoke onPreExecute()", Toast.LENGTH_SHORT).show();
+	 
+	    progress_status = 0;
+	  //  txt_percentage.setText("downloading 0%");
+	    firstTimeSetupCounter_.setText("0");
+	    
+	  }
+	      
+	  @Override
+	  protected Void doInBackground(Void... params) {
+		  	
+			File artdir = new File(basepath + "/pixel/pixelanimate");
+			artdir.mkdirs();			
+			SystemClock.sleep(100);
+            File decodeddir = new File(basepath + "/pixel/pixelanimate/blackgifs");
+		  	decodeddir.mkdirs();
+			SystemClock.sleep(100);
+		  	copyArt(); //copy the .gif files
+			SystemClock.sleep(100);
+			copyArt2();
+			//SystemClock.sleep(100);
+		
+			//sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://"+ Environment.getExternalStorageDirectory())));
+			//SystemClock.sleep(12000); //if this delay is not there, the animations won't all be loaded the first time
+			
+			/*copyDecodedThread("0rain");
+			progress_status += 2;
+		    publishProgress(progress_status);
+		    
+        	copyDecodedThread("arrows");
+        	progress_status += 2;
+		    publishProgress(progress_status);
+		    
+		    copyDecodedThread("ybikini");
+        	progress_status += 2;
+		    publishProgress(progress_status);
+		    
+        	copyDecodedThread("boat");
+        	progress_status += 2;
+		    publishProgress(progress_status);
+		    
+        	copyDecodedThread("bubbles");
+        	progress_status += 2;
+		    publishProgress(progress_status);
+		    
+        	copyDecodedThread("colortiles");
+        	progress_status += 2;
+		    publishProgress(progress_status);
+		    
+        	copyDecodedThread("crosshatch");
+        	progress_status += 2;
+		    publishProgress(progress_status);
+		    
+		    copyDecodedThread("earth");
+        	progress_status += 2;
+		    publishProgress(progress_status);
+		    
+            copyDecodedThread("farmer");
+            progress_status += 2;
+		    publishProgress(progress_status);
+		    
+		    copyDecodedThread("sfighting");
+            progress_status += 2;
+		    publishProgress(progress_status);
+		    
+            copyDecodedThread("fire");
+            progress_status += 2;            
+		    publishProgress(progress_status);
+		    
+            copyDecodedThread("fliptile");
+            progress_status += 2;
+		    publishProgress(progress_status);
+		    
+            copyDecodedThread("float");
+            progress_status += 2;
+		    publishProgress(progress_status);
+		    
+            copyDecodedThread("flow");
+            progress_status += 2;
+		    publishProgress(progress_status);
+		    
+            copyDecodedThread("fuji");
+            progress_status += 2;
+		    publishProgress(progress_status);
+		    
+            copyDecodedThread("lines");
+            progress_status += 2;
+		    publishProgress(progress_status);
+		    
+		    copyDecodedThread("orangeball");
+            progress_status += 2;
+		    publishProgress(progress_status);
+		    
+		    copyDecodedThread("pacman");
+            progress_status += 2;
+		    publishProgress(progress_status);
+		    
+		    copyDecodedThread("pattern");
+            progress_status += 2;
+		    publishProgress(progress_status);
+		    
+            copyDecodedThread("rainfast");
+            progress_status += 2;
+		    publishProgress(progress_status);
+		    
+            copyDecodedThread("sboxergreen");
+            progress_status += 2;
+		    publishProgress(progress_status);
+		    
+            copyDecodedThread("sboxerpink");
+            progress_status += 2;
+		    publishProgress(progress_status);
+		    
+            copyDecodedThread("scmakeout");
+            progress_status += 4;
+		    publishProgress(progress_status);
+		    
+		    copyDecodedThread("screddance");
+            progress_status += 4;
+		    publishProgress(progress_status);
+		    
+            copyDecodedThread("scrowd");
+            progress_status += 4;
+		    publishProgress(progress_status);
+		    
+            copyDecodedThread("sgorangedancer");
+            progress_status += 2;
+		    publishProgress(progress_status);
+		    
+            copyDecodedThread("sgreendancer");
+            progress_status += 2;
+		    publishProgress(progress_status);
+		    
+            copyDecodedThread("sjumpblue");
+            progress_status += 2;
+		    publishProgress(progress_status);
+		    
+		    copyDecodedThread("sjumppink");
+            progress_status += 2;
+		    publishProgress(progress_status);
+		    
+		    copyDecodedThread("paoloworm");
+            progress_status += 2;
+		    publishProgress(progress_status);
+		    
+		    copyDecodedThread("sponytail");
+            progress_status += 4;
+		    publishProgress(progress_status);
+		    
+		    copyDecodedThread("rspray");
+            progress_status += 4;
+		    publishProgress(progress_status);
+		    
+		    copyDecodedThread("spraying");
+            progress_status += 4;
+		    publishProgress(progress_status);
+		    
+		    copyDecodedThread("rstarburst");
+            progress_status += 2;
+		    publishProgress(progress_status);
+		    
+		    copyDecodedThread("rstarfield");
+            progress_status += 2;
+		    publishProgress(progress_status);
+		    
+		    copyDecodedThread("rshifter");
+            progress_status += 2;
+		    publishProgress(progress_status);
+		    
+		    copyDecodedThread("rwaterflow");
+            progress_status += 4;
+		    publishProgress(progress_status);
+		    
+		    copyDecodedThread("rwhiteball");
+            progress_status += 4;
+		    publishProgress(progress_status);
+		    
+		    copyDecodedThread("zaquarium");
+            progress_status += 4;
+		    publishProgress(progress_status);
+		    
+		    copyDecodedThread("zarcade");
+            progress_status += 4;
+		    publishProgress(progress_status);*/
+		  
+		  
+			//  while(progress_status<100){
+		     
+		   // progress_status += 2;
+		     
+		   // publishProgress(progress_status);
+		   // SystemClock.sleep(300);
+		     
+		  // }
+		    
+	   return null;
+	  }
+	  
+	  @Override
+	  protected void onProgressUpdate(Integer... values) {
+	   super.onProgressUpdate(values);
+	    
+	  // progressBar.setProgress(values[0]);
+	   firstTimeSetupCounter_.setText(values[0]+"");
+	  // firstTimeSetupCounter_.setText("0%");
+	    
+	  }
+	   
+	  @Override
+	  protected void onPostExecute(Void result) {
+	   super.onPostExecute(result);
+	   
+	   countdownCounter = (countdownDuration - 2);
+       mediascanTimer = new MediaScanTimer(countdownDuration*1000,1000); //pop up a message if it's not connected by this timer
+       mediascanTimer.start(); //we need a delay here to give the me
+	   
+	   //continueOnCreate();
+	   //firstTimeSetupCounter_.setText("Just a moment...");
+	  }
+	  
+	 
+	  
+	 /* private void copyDecodedThread(final String decodedDir) {  
+		  
+		 // pixel/pixelanimate/blackgifs
+			
+					AssetManager assetManager = getResources().getAssets();
+			        String[] files = null;
+			        try {
+			            files = assetManager.list("pixelanimations/decoded/" + decodedDir);
+			        } catch (Exception e) {
+			            Log.e("read clipart ERROR", e.toString());
+			            e.printStackTrace();
+			        }
+			        
+			        File dir = new File(basepath + "/pixel/pixelanimations/decoded/" + decodedDir);
+	                if (!dir.exists())
+	                    dir.mkdir();
+	                
+			        for(int i=0; i<files.length; i++) {
+			            InputStream in = null;
+			            OutputStream out = null;
+			            try {
+			              in = assetManager.open("pixelanimations/decoded/" + decodedDir + "/" + files[i]);
+			              out = new FileOutputStream(basepath + "/pixel/pixelanimations/decoded/" + decodedDir + "/" + files[i]);
+			              copyFile(in, out);
+			              in.close();
+			              in = null;
+			              out.flush();
+			              out.close();
+			              out = null;   
+			           
+			            } catch(Exception e) {
+			                Log.e("copy clipart ERROR", e.toString());
+			                e.printStackTrace();
+			            }       
+			        }
+				
+		}*/
+	  
+	
+	//		@SuppressLint("NewApi")
+			private void copyArt() {
+		    	
+		    	AssetManager assetManager = getResources().getAssets();
+		        String[] files = null;
+		        try {
+		            files = assetManager.list("pixelanimate");
+		        } catch (Exception e) {
+		            Log.e("read clipart ERROR", e.toString());
+		            e.printStackTrace();
+		        }
+		        
+		        progress_status = 1;
+		        
+		        for(int i=0; i<files.length; i++) {
+		            InputStream in = null;
+		            OutputStream out = null;
+		            try {
+		              in = assetManager.open("pixelanimate/" + files[i]);
+		              out = new FileOutputStream(basepath + "/pixel/pixelanimate/" + files[i]);
+		              copyFile(in, out);
+		              in.close();
+		              
+		              progress_status += 1;
+		  		      publishProgress(progress_status);
+		              
+		              in = null;
+		              out.flush();
+		              out.close();
+		              out = null;    
+		            
+		             
+		           MediaScannerConnection.scanFile(context,  //here is where we register the newly copied file to the android media content DB via forcing a media scan
+			                        new String[] { basepath + "/pixel/pixelanimate/" + files[i] }, null,
+			                        new MediaScannerConnection.OnScanCompletedListener() {
+			                    public void onScanCompleted(String path, Uri uri) {
+			                        Log.i("ExternalStorage", "Scanned " + path + ":");
+			                        Log.i("ExternalStorage", "-> uri=" + uri);
+			                       // SystemClock.sleep(100);
+			                        
+			                    }
+			          });
+		           
+		            } catch(Exception e) {
+		                Log.e("copy clipart ERROR", e.toString());
+		                e.printStackTrace();
+		            }       
+		        }
+		        
+		       // firstTimeSetupCounter_.setText("Just a moment...");
+		        
+		    }
+			
+			//		@SuppressLint("NewApi")
+			private void copyArt2() {
+		    	
+		    	AssetManager assetManager = getResources().getAssets();
+		        String[] files2 = null;
+		        try {
+		            files2 = assetManager.list("pixelanimate/blackgifs");
+		        } catch (Exception e) {
+		            Log.e("read clipart ERROR", e.toString());
+		            e.printStackTrace();
+		        }
+		        for(int i=0; i<files2.length; i++) {
+		            InputStream in = null;
+		            OutputStream out = null;
+		            try {
+		              in = assetManager.open("pixelanimate/blackgifs/" + files2[i]);
+		              out = new FileOutputStream(basepath + "/pixel/pixelanimate/blackgifs/" + files2[i]);
+		              copyFile(in, out);
+		              in.close();
+		              in = null;
+		              out.flush();
+		              out.close();
+		              out = null;  
+		              
+		              //no need to register these with mediascanner as these are internal gifs , the workaround for the gifs with a black frame as the first frame
+		           
+		            } catch(Exception e) {
+		                Log.e("copy clipart ERROR", e.toString());
+		                e.printStackTrace();
+		            }       
+		        }
+		    }
+			
+			
+			
+			
+			
+} //end of the copy async copy class
+	 
+	
 	
 	 private void MediaScanCompleted() {
          
@@ -265,49 +634,7 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
          loadImages();
     }
 	    
-	   // @SuppressLint("NewApi")
-		@SuppressLint("NewApi")
-		private void copyArt() {
-	    	
-	    	AssetManager assetManager = getResources().getAssets();
-	        String[] files = null;
-	        try {
-	            files = assetManager.list("pixelanimate");
-	        } catch (Exception e) {
-	            Log.e("read clipart ERROR", e.toString());
-	            e.printStackTrace();
-	        }
-	        for(int i=0; i<files.length; i++) {
-	            InputStream in = null;
-	            OutputStream out = null;
-	            try {
-	              in = assetManager.open("pixelanimate/" + files[i]);
-	              out = new FileOutputStream(basepath + "/pixel/pixelanimate/" + files[i]);
-	              copyFile(in, out);
-	              in.close();
-	              in = null;
-	              out.flush();
-	              out.close();
-	              out = null;    
-	            
-	             
-	           MediaScannerConnection.scanFile(context,  //here is where we register the newly copied file to the android media content DB via forcing a media scan
-		                        new String[] { basepath + "/pixel/pixelanimate/" + files[i] }, null,
-		                        new MediaScannerConnection.OnScanCompletedListener() {
-		                    public void onScanCompleted(String path, Uri uri) {
-		                        Log.i("ExternalStorage", "Scanned " + path + ":");
-		                        Log.i("ExternalStorage", "-> uri=" + uri);
-		                        
-		                    }
-		          });
-	           
-	            } catch(Exception e) {
-	                Log.e("copy clipart ERROR", e.toString());
-	                e.printStackTrace();
-	            }       
-	        }
-	        
-	    }
+	 
 	    
 	    private void copyFile(InputStream in, OutputStream out) throws IOException {
 	        byte[] buffer = new byte[1024];
@@ -518,7 +845,7 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
         protected void onPostExecute(Object result) {
             setProgressBarIndeterminateVisibility(false);
             pDialog.dismiss();
-            showToast(getString(R.string.StartInstructions));  //Tap to Animate
+           // showToast(getString(R.string.StartInstructions));  //Tap to Animate
         }
     }
 
@@ -605,10 +932,29 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
 	        imagePath = cursor.getString(columnIndex);
 	        System.gc();
 	        
-	        //gifView.setGif(R.drawable.cleric);
+	        //now let's test if the image was a .png, this was our work around for animations .gifs that have the first frame as a black frame
+	        
+	       // showToast(imagePath);   //  /storage/emulated/0/pixel/pixelanimate/tree.gif  change to /storage/emulated/0/pixel/pixelanimate/blackgifs/tree.gif
+	     
+	        String filenameArray[] = imagePath.split("\\.");
+	        String extension = filenameArray[filenameArray.length-1]; //.png
+	       
+	        
+	        if (extension.equals("png")) {
+	        	String wholestring_no_extension = filenameArray[filenameArray.length-2]; // /storage/emulated/0/pixel/pixelanimate/tree
+	        	String filenameArray2[] = wholestring_no_extension.split("\\/");
+	        	String filename_no_extension = filenameArray2[filenameArray2.length-1]; //tree
+		       // showToast(filename_no_extension);
+	        	String newimagePath = wholestring_no_extension.replace(filename_no_extension, "blackgifs/" + filename_no_extension + ".gif");
+	        	//showToast(newimagePath);
+	        	//showToast(String.valueOf(filenameArray2.length));
+	        	imagePath = newimagePath;
+	        }
+	       
 	        gifView.setGif(imagePath);
 	        gifView.play();
 	         
+	        
 	        //***** was calling the IOIO piece from a new intent but removed this *******
 	        // Intent intent = new Intent(getApplicationContext(), ViewImage.class);
 	        // intent.putExtra("filename", imagePath);
@@ -939,7 +1285,7 @@ public class MainActivity extends IOIOActivity implements OnItemClickListener  {
    		@Override
    		public void onTick(long millisUntilFinished)				{
    			//showToastShort("ONE TIME SETUP: Copying stock pictures to your SD card. Please Wait..." + countdownCounter);
-   			setfirstTimeSetupCounter(Integer.toString(countdownCounter));
+   			setfirstTimeSetupCounter("Just a moment... " + Integer.toString(countdownCounter));
    			//showToastShort(getResources().getString(R.string.oneTimeSetupString) + " " + countdownCounter);
    			countdownCounter--;
    		}
